@@ -41,7 +41,7 @@ Recipe Title.
 Honey Butter.
 ```
 
-### Prep
+### Prep (Function definition)
 > Indicates a function definition when followed by a period.
 ```
 <Name Of Function> Prep.
@@ -53,13 +53,14 @@ Egg Drop Soup Prep.
 <instructions>
 ```
 
+## Prep (Function Call)
 > Indicates a function call when followed by a *title case* name and a period.
 ```
-<Name Of Function> Prep.
-<instructions>
+Prep <Name Of Function>.
 ```
 #### Example
-
-
+```
+Prep Egg Drop Soup.
+```
 
 ### Ingredients
