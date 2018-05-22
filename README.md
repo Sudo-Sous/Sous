@@ -35,7 +35,31 @@ Sous is built upon the base Chef syntax with some changes and additions.
 Recipe Title.
 ```
 
+#### Example
+
+```
+Honey Butter.
+```
+
 ### Prep
+> Indicates a function definition when followed by a period.
+```
+<Name Of Function> Prep.
+<instructions>
+```
+#### Example
+```
+Egg Drop Soup Prep.
+<instructions>
+```
+
+> Indicates a function call when followed by a *title case* name and a period.
+```
+<Name Of Function> Prep.
+<instructions>
+```
+#### Example
+
 
 
 ### Ingredients
