@@ -17,6 +17,7 @@ principles.
     - No need to waste food.
     
 2. Ingredients must be real.
+    - And edible.
 
 3. Like Chef, measurements are metric.
     - Plus cups, tablespooons, and teaspoons.
@@ -25,7 +26,16 @@ principles.
 Sous is built upon the base Chef syntax with some changes and additions.
 
 ### Recipe Title
+> 1. Recipes titles must be present before all non-comment operations.
+> 2. Titles must also describe the recipe and should be short. 
+> 3. It is best practice to include a direct refrence to the operations of the program
+>       - However, it is not  a necessity.
+
+```
+Recipe Title.
+```
 
 ### Prep
+
 
 ### Ingredients
