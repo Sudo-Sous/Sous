@@ -53,7 +53,7 @@ Egg Drop Soup Prep.
 <instructions>
 ```
 
-## Prep (Function Call)
+### Prep (Function Call)
 > Indicates a function call when followed by a *title case* name and a period.
 ```
 Prep <Name Of Function>.
