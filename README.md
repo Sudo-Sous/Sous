@@ -41,7 +41,7 @@ Recipe Title.
 Honey Butter.
 ```
 
-### Prep (Function definition)
+### Prep (Function Definition)
 > Indicates a function definition when followed by a period.
 ```
 <Name Of Function> Prep.
