@@ -12,4 +12,4 @@ taken for granted in today's languages. As such, Sous was created to
 allow for more complex programs while still holding true to Chef's
 principles.
 
-**Please see the wiki for further information**
+**Please see the [wiki](https://github.com/Sudo-Sous/Sous/wiki) for further information**
