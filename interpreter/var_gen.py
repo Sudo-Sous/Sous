@@ -18,4 +18,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-def one_
+DRY = ("g", "kg", "pinch", "pinches")
+
+LIQUID = ("ml", "l", "dash", "dashes")
+
+EITHEROR = ("tablespoon", "tablespoons", "cup", "cups", "teaspoon", "teaspoons")
+
+DRYFLAG = ("heaping", "level")
+
+def one_token():
+    pass
+
+def two_token():
+    pass
+
+def three_token():
+    pass
+
+def four_plus_token():
+    pass
+
