@@ -12,4 +12,7 @@ taken for granted in today's languages. As such, Sous was created to
 allow for more complex programs while still holding true to Chef's
 principles.
 
+### Licensing
+All contents of the wiki regarding the language itself fall within the public domain. All other contents within the repository fall under the MIT License.
+
 **Please see the [wiki](https://github.com/Sudo-Sous/Sous/wiki) for further documation**
