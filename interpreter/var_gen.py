@@ -26,15 +26,57 @@ EITHEROR = ("tablespoon", "tablespoons", "cup", "cups", "teaspoon", "teaspoons")
 
 DRYFLAG = ("heaping", "level")
 
-def one_token():
-    pass
+def convert_to_int(token)
+    try:
+        return int(token)
+    except ValueError:
+        pass
 
-def two_token():
-    pass
+def set_dry_val(tokens):
+    token_val = convert_to_int(tokens[0])
+    if token_val:
+        return {tokens[1]: token_val}
+    else:
+        raise ValueError
 
-def three_token():
-    pass
+def set_liquid_val(tokens):
+    token_val = convert_to_int(tokens[0])
+    if token_val:
+        return {tokens[1]: tokens[0]}
+    else:
+        raise ValueError
 
-def four_plus_token():
+def gen_var_name(tokens):
+    var_name = ""
+    for token in tokens:
+        if len(var_name) > 0:
+            var_name += " {}".format(token)
+         else:
+            var_name += token
+    return var_name
+
+def one_token(tokens):
+    return {tokens[0]: None}
+
+def two_token(tokens):
+    token_val = convert_to_int(tokens[0])
+    if token_val:
+        return {tokens[1]: tokens[0]}
+    else:
+        return {"{0} {1}".format(tokens[1], tokens[0]): None}
+
+def three_token(tokens):
+    if tokens[1] in DRY:
+        return set_dry_val(tokens)
+    elif tokens[1] in LIQUID:
+        return set_liquid_val(tokens)
+    elif tokens[1] in EITHEROR:
+        return set_liquid_val(tokens)
+    else:
+        token_val = convert_to_int(tokens[0]
+        if token_val:
+            return {}
+
+def multi_token(tokens, var_dict):
     pass
 

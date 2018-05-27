@@ -21,6 +21,8 @@
 import argparse
 import re
 
+from . import var_dict
+
 var_dict = {}
 
 def file_parser(line):
@@ -35,22 +37,18 @@ def prep_parser(line):
         return True
     return False
 
-def convert_to_int(token)
-    try:
-        return int(token)
-    except ValueError:
-        pass 
-
 def ing_parser(line):
-    tokens = line.split(' ')
-    if len(tokens) == 1:
-        var_dict[tokens[0]] = None
-    else len(tokens) == 2:
-       token_val = convert_to_int(tokens[0])
-       if token_val:
-           var_dict[tokens[1] = tokens[0]
-       else:
-           var_dict["{0} {1}"] = None
+    if len(line > 2):
+        tokens = line.split(' ')
+        if len(tokens) == 1:
+            var_dict.one_token(tokens)
+        elif len(tokens) == 2:
+            var_dict.two_token(tokens)
+        elif len(tokens) == 3:
+            var_dict.three_token(tokens)
+        else:
+            var_dict.multi_token(tokens)
+    return True
 
 def exec_parser(line):
     pass 
