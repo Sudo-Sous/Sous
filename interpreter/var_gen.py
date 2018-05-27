@@ -73,10 +73,11 @@ def three_token(tokens):
     elif tokens[1] in EITHEROR:
         return set_liquid_val(tokens)
     else:
-        token_val = convert_to_int(tokens[0]
+        token_val = convert_to_int(tokens[0])
         if token_val:
-            return {}
+            return {gen_var_name(tokens[1:]): tokens[0]}
+        else:
+            return {gen_var_name(tokens): None}
 
-def multi_token(tokens, var_dict):
+def multi_token(tokens):
     pass
-
