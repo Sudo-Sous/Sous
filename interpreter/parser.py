@@ -21,7 +21,7 @@
 import argparse
 import re
 
-from . import var_dict
+from . import var_gen as gen
 
 var_dict = {}
 
@@ -41,13 +41,13 @@ def ing_parser(line):
     if len(line > 2):
         tokens = line.split(' ')
         if len(tokens) == 1:
-            var_dict.one_token(tokens)
+            var_dict.udpate(gen.one_token(tokens))
         elif len(tokens) == 2:
-            var_dict.two_token(tokens)
+            var_dict.update(gen.two_token(tokens))
         elif len(tokens) == 3:
-            var_dict.three_token(tokens)
+            var_dict.update(gen.three_token(tokens))
         else:
-            var_dict.multi_token(tokens)
+            var_dict.update(gen.multi_token(tokens))
     return True
 
 def exec_parser(line):
