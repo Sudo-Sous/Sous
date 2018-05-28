@@ -67,11 +67,17 @@ def two_token(tokens):
 
 def three_token(tokens):
     if tokens[1] in DRY:
+        del tokens[1]
         return set_dry_val(tokens)
     elif tokens[1] in LIQUID:
+        del tokens[1]
         return set_liquid_val(tokens)
     elif tokens[1] in EITHEROR:
-        return set_liquid_val(tokens)
+        del tokens[1]
+        if tokens[1] in DRYFLAG:
+            return set_dry_val(tokens)
+        else:
+            return set_liquid_val(tokens)
     else:
         token_val = convert_to_int(tokens[0])
         if token_val:
@@ -80,4 +86,12 @@ def three_token(tokens):
             return {gen_var_name(tokens): None}
 
 def multi_token(tokens):
-    pass
+    if tokens[1] in DRY:
+       del tokens[1]
+       return set_dry_val([tokens[0], gen_var_name(tokens[1:])])
+    elif tokens[1] in LIQUID:
+       del tokens[1]
+       return set_dry_val([tokens[0], gen_var_name(tokens[1:])])
+    elif tokens[1] in EITHEROR:
+       del tokens[1]
+       return set_dry_val([tokens[0], gen_var_name(tokens[1:])])
