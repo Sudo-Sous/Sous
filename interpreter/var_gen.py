@@ -26,7 +26,7 @@ EITHEROR = ("tablespoon", "tablespoons", "cup", "cups", "teaspoon", "teaspoons")
 
 DRYFLAG = ("heaping", "level")
 
-def convert_to_int(token)
+def convert_to_int(token):
     try:
         return int(token)
     except ValueError:
@@ -51,7 +51,7 @@ def gen_var_name(tokens):
     for token in tokens:
         if len(var_name) > 0:
             var_name += " {}".format(token)
-         else:
+        else:
             var_name += token
     return var_name
 

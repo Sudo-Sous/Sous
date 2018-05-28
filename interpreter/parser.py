@@ -21,24 +21,24 @@
 import argparse
 import re
 
-from . import var_gen as gen
+import var_gen as gen
 
 var_dict = {}
 
 def file_parser(line):
-    if len(line) > 2:
-        if line[len(line)-2] == '.':
+    if len(line) > 0:
+        if line[len(line)-1] == '.':
             if re.search('(?<=Prep)\.', line):
                 return True
     return False
 
 def prep_parser(line):
-    if re.match('Ingredients.', line):
+    if re.match('Ingredients\.', line):
         return True
     return False
 
-def ing_parser(line):
-    if len(line > 2):
+def ing_parser(line, cnt):
+    if len(line) > 0:
         tokens = line.split(' ')
         if len(tokens) == 1:
             var_dict.udpate(gen.one_token(tokens))
@@ -48,7 +48,10 @@ def ing_parser(line):
             var_dict.update(gen.three_token(tokens))
         else:
             var_dict.update(gen.multi_token(tokens))
-    return True
+        return False
+
+    if cnt > 0:
+        return True
 
 def exec_parser(line):
     pass 
@@ -60,15 +63,20 @@ def main():
 
     PREPFLAG = False
     EXECFLAG = False
+    INGFLAG = False
+    cnt = 0
+
     with open(args.filename, 'r') as f:
         for line in f:
+            line2 = line.strip('\n')
             if EXECFLAG and line:
-                exec_parser(line)
+                exec_parser(line2)
             elif INGFLAG and line:
-                EXECFLAG = ing_parser(line)
+                EXECFLAG = ing_parser(line2, cnt)
+                cnt += 1 
             elif PREPFLAG and line:
-                INGFLAG = prep_parser(line)
+                INGFLAG = prep_parser(line2)
             elif line:
-                PREPFLAG = file_parser(line)
+                PREPFLAG = file_parser(line2)
 
 main()
