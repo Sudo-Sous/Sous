@@ -20,6 +20,7 @@
 
 import re
 
+import parser
 
 def get_top_elem(mixing_bowls, index):
     return [*mixing_bowls[index][len(mixing_bowls)]][0] 
@@ -98,3 +99,35 @@ def prnt_ing():
 
 def prnt_bowl():
     pass
+
+def fetch(instruct, mixing_bowls, dirname):
+    import os
+    root = None
+    name = None
+    ret_dir = None 
+
+    if os.getcwd() != dirname:
+       ret_dir = os.getcwd()
+       os.chdir(dirname)
+
+    if re.match('Fetch the  [a-z]+)', instruct):
+        root = '.'
+        name = re.match('Fetch the ([a-z]+)', instruct).group(1)
+    elif re.match('Fetch the  ([a-z]+) from the counter', instruct):
+        root = '..'
+        name = re.match('Fetch the ([a-z]+) from the counter', instruct).group(1)
+    elif re.match('Fetch the ([a-z]+) from the pantry', instruct):
+        root = './pantry'
+        name = re.match('Fetch the ([a-z]+) from the pantry', instruct).group(1)
+
+    if root and name:
+        for root, dirs, files in os.walk(root):
+            for filename in files:
+                if filename.split('/')[-1] == name:
+                    bowls = parser.main(filename)
+                    for bowl in bowls:
+                        mixing_bowls.append(bowl)
+    # TODO: else throw error
+
+    if ret_dir:
+        os.chdir(ret_dir)

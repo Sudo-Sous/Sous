@@ -67,20 +67,23 @@ def ing_parser(line, cnt):
         return True
 
 
-def run_instruction(command, instruct):
+def run_instruction(command, instruct, dirname):
+    if command == "Fetch":
+        return ops.fetch
+ 
     command_list = {
         "Add": ops.add,
         "Remove": ops.sub,
         "Combine": ops.multi,
         "Divide": ops.div,
-        "Taste": ops.prnt
+        "Taste": ops.prnt,
+        "Prep": ops.prep
     }
 
-    #TODO: Raise error for unknown command
     return command_list[command](instruct, mixing_bowls)
 
 
-def exec_parser(line, cnt):
+def exec_parser(line, cnt, dirname):
     if len(line) > 0:
         sanitized_line = line.replace('. ', '.')
         instructions = sanitized_line.split('.')
@@ -90,28 +93,36 @@ def exec_parser(line, cnt):
 
         for instruct in instructions:
             command = instruct.split(' ')[0]
-            mixing_bowls = run_instruction(command, instruct)
+            mixing_bowls = run_instruction(command,
+                instruct, dirname)
         return True
 
     if cnt > 0:
         return False
 
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filename")
-    args = parser.parse_args()
+def main(filename=None):
+    import os
+
+    if not filename:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("filename")
+        args = parser.parse_args()
+        filename = args.filename
+
+    # Splitting results in removal of delim. Have to rebuild
+    dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]]) 
 
     PREPFLAG = False
     EXECFLAG = False
     INGFLAG = False
     cnt = 0
 
-    with open(args.filename, 'r') as f:
+    with open(filename, 'r') as f:
         for line in f:
             line2 = line.strip('\n')
             if EXECFLAG and line:
-                EXECFLAG = exec_parser(line2, cnt)
+                EXECFLAG = exec_parser(line2, cnt, dirname)
                 cnt += 1
             elif INGFLAG and line:
                 EXECFLAG = ing_parser(line2, cnt)
@@ -125,5 +136,7 @@ def main():
                     PREPFLAG = False
             elif line:
                 PREPFLAG = file_parser(line2)
+
+    return mixing_bowls
 
 main()
