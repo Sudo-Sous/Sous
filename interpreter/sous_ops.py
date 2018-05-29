@@ -20,6 +20,7 @@
 
 import re
 
+
 def get_top_elem(mixing_bowls, index):
     return [*mixing_bowls[index][len(mixing_bowls)]][0] 
 
@@ -81,6 +82,7 @@ def div(instruct, mixing_bowls):
     key, val = op_setup(mixing_bowls, index, ing)
     mixing_bowls[index][key] /= int(val)
     return mixing_bowls
+
 
 def prnt(instruct, mixing_bowls):
     result = re.match('Taste the ([a-z]+)',

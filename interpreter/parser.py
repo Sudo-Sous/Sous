@@ -24,7 +24,9 @@ import re
 import var_gen as gen
 import sous_ops as ops
 
+
 mixing_bowls = [[]]
+
 
 def len_mb(offset=0):
     return len(mixing_bowls)-offset
@@ -64,6 +66,7 @@ def ing_parser(line, cnt):
     if cnt > 0:
         return True
 
+
 def run_instruction(command, instruct):
     command_list = {
         "Add": ops.add,
@@ -75,6 +78,7 @@ def run_instruction(command, instruct):
 
     #TODO: Raise error for unknown command
     return command_list[command](instruct, mixing_bowls)
+
 
 def exec_parser(line, cnt):
     if len(line) > 0:
