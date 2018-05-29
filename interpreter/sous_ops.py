@@ -18,20 +18,81 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-def add():
+import re
+
+def get_top_elem(mixing_bowls, index):
+    return [*mixing_bowls[index][len(mixing_bowls)]][0] 
+
+
+def get_ing_val(mixing_bowls, token):
+    for bowl in mixing_bowls:
+        for ing in bowl:
+            if ing.get(token):
+                return ing[token]
+
+
+def op_setup(mixing_bowls, index, ing):
+    key = get_top_elem(mixing_bowls, index)
+    return (key, get_ing_val(mixing_bowls, ing))
+
+
+def add(instruct, mixing_bowls):
+    result = re.match('Add ([a-z]+) to the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+    index = int(result.group(2)) - 1
+    ing = result.group(1)
+
+    key, val = op_setup(mixing_bowls, index, ing)
+
+    # Strings support addition
+    mixing_bowls[index][len(mixing_bowls)][key] += val
+    return mixing_bowls
+
+
+def sub(instruct, mixing_bowls):
+    result = re.match('Remove ([a-z]+) from the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+    index = int(result.group(2)) - 1
+    ing = result.group(1)
+
+    key, val = op_setup(mixing_bowls, index, ing)
+    mixing_bowls[index][key] -= int(val)
+    return mixing_bowls
+
+
+def multi(instruct, mixing_bowls):
+    result = re.match('Combine ([a-z]+) into the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+    index = int(result.group(2)) - 1
+    ing = result.group(1)
+
+    # Stings support multiplcation 
+    key, val = op_setup(mixing_bowls, index, ing)
+    mixing_bowls[index][key] *= val
+    return mixing_bowls
+
+
+def div(instruct, mixing_bowls):
+    result = re.match('Divide ([a-z]+) into the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)                                     
+    index = int(result.group(2)) - 1
+    ing = result.group(1)
+
+    key, val = op_setup(mixing_bowls, index, ing)
+    mixing_bowls[index][key] /= int(val)
+    return mixing_bowls
+
+def prnt(instruct, mixing_bowls):
+    result = re.match('Taste the ([a-z]+)',
+                      instruct)
+    ing = result.group(1)
+
+    print(get_ing_val(mixing_bowls, ing))
+
+
+def prnt_ing():
     pass
 
-def subtract():
-    pass
 
-def multiply():
-    pass
-
-def divide():
-    pass
-
-def print_ing():
-    pass
-
-def print_bowl():
+def prnt_bowl():
     pass

@@ -22,8 +22,17 @@ import argparse
 import re
 
 import var_gen as gen
+import sous_ops as ops
 
-var_dict = {}
+mixing_bowls = [[]]
+
+def len_mb(offset=0):
+    return len(mixing_bowls)-offset
+
+
+def bowl_builder(var_func, tokens):
+    mixing_bowls[len_mb(1)].append(var_func(tokens))
+
 
 def file_parser(line):
     if len(line) > 0:
@@ -32,29 +41,57 @@ def file_parser(line):
                 return True
     return False
 
+
 def prep_parser(line):
     if re.match('Ingredients\.', line):
         return True
     return False
 
+
 def ing_parser(line, cnt):
     if len(line) > 0:
         tokens = line.split(' ')
         if len(tokens) == 1:
-            var_dict.udpate(gen.one_token(tokens))
+            bowl_builder(gen.one_token, tokens)
         elif len(tokens) == 2:
-            var_dict.update(gen.two_token(tokens))
+            bowl_builder(gen.two_token, tokens) 
         elif len(tokens) == 3:
-            var_dict.update(gen.three_token(tokens))
+            bowl_builder(gen.three_token, tokens) 
         else:
-            var_dict.update(gen.multi_token(tokens))
+            bowl_builder(gen.multi_token, tokens) 
         return False
 
     if cnt > 0:
         return True
 
-def exec_parser(line):
-    pass 
+def run_instruction(command, instruct):
+    command_list = {
+        "Add": ops.add,
+        "Remove": ops.sub,
+        "Combine": ops.multi,
+        "Divide": ops.div,
+        "Taste": ops.prnt
+    }
+
+    #TODO: Raise error for unknown command
+    return command_list[command](instruct, mixing_bowls)
+
+def exec_parser(line, cnt):
+    if len(line) > 0:
+        sanitized_line = line.replace('. ', '.')
+        instructions = sanitized_line.split('.')
+ 
+        # Split causes extra blank to be added -> Remove it
+        del instructions[-1]
+
+        for instruct in instructions:
+            command = instruct.split(' ')[0]
+            mixing_bowls = run_instruction(command, instruct)
+        return True
+
+    if cnt > 0:
+        return False
+
 
 def main():
     parser = argparse.ArgumentParser()
@@ -70,12 +107,18 @@ def main():
         for line in f:
             line2 = line.strip('\n')
             if EXECFLAG and line:
-                exec_parser(line2)
+                EXECFLAG = exec_parser(line2, cnt)
+                cnt += 1
             elif INGFLAG and line:
                 EXECFLAG = ing_parser(line2, cnt)
-                cnt += 1 
+                cnt += 1
+                if EXECFLAG:
+                    INGFLAG = False
+                    cnt = 0
             elif PREPFLAG and line:
                 INGFLAG = prep_parser(line2)
+                if INGFLAG:
+                    PREPFLAG = False
             elif line:
                 PREPFLAG = file_parser(line2)
 
