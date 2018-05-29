@@ -101,6 +101,24 @@ def exec_parser(line, cnt, dirname):
         return False
 
 
+def parse_fuc(line):
+    if EXECFLAG and line:
+        EXECFLAG = exec_parser(line2, cnt, dirname)
+        cnt += 1
+    elif INGFLAG and line:
+        EXECFLAG = ing_parser(line2, cnt)
+        cnt += 1
+        if EXECFLAG:
+            INGFLAG = False
+            cnt = 0
+        elif PREPFLAG and line:
+            INGFLAG = prep_parser(line2)
+            if INGFLAG:
+                PREPFLAG = False
+        elif line:
+            PREPFLAG = file_parser(line2)
+
+
 def main(filename=None):
     import os
 
@@ -121,21 +139,6 @@ def main(filename=None):
     with open(filename, 'r') as f:
         for line in f:
             line2 = line.strip('\n')
-            if EXECFLAG and line:
-                EXECFLAG = exec_parser(line2, cnt, dirname)
-                cnt += 1
-            elif INGFLAG and line:
-                EXECFLAG = ing_parser(line2, cnt)
-                cnt += 1
-                if EXECFLAG:
-                    INGFLAG = False
-                    cnt = 0
-            elif PREPFLAG and line:
-                INGFLAG = prep_parser(line2)
-                if INGFLAG:
-                    PREPFLAG = False
-            elif line:
-                PREPFLAG = file_parser(line2)
 
     return mixing_bowls
 
