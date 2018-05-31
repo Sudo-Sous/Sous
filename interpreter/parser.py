@@ -27,14 +27,10 @@ import sous_ops as ops
 
 mixing_bowls = [[]]
 recipe_funs = []
-methods = {}
+func_hash = []
 
 def len_mb(offset=0):
     return len(mixing_bowls)-offset
-
-
-def bowl_builder(var_func, tokens):
-    mixing_bowls[len_mb(1)].append(var_func(tokens))
 
 
 def file_parser(line):
@@ -51,33 +47,32 @@ def prep_parser(line):
 
 
 def ing_parser(line, cnt):
+    mixing_bowl = []
     if len(line) > 0:
         tokens = line.split(' ')
         if len(tokens) == 1:
-            bowl_builder(gen.one_token, tokens)
+            mixing_bowl.append(gen.one_token(tokens))
         elif len(tokens) == 2:
-            bowl_builder(gen.two_token, tokens) 
+            mixing_bowl.append(gen.two_token(tokens))
         elif len(tokens) == 3:
-            bowl_builder(gen.three_token, tokens) 
+            mixing_bowl.append(gen.three_token(tokens))
         else:
-            bowl_builder(gen.multi_token, tokens) 
-        return False
+            mixing_bowl.append(gen.multi_token(tokens))
 
     if cnt > 0:
-        return True
+        return mixing_bowl
 
 
 def run_instruction(command, instruct, dirname):
     if command == "Fetch":
         return ops.fetch
- 
+
     command_list = {
         "Add": ops.add,
         "Remove": ops.sub,
         "Combine": ops.multi,
         "Divide": ops.div,
         "Taste": ops.prnt,
-        "Prep": ops.prep
     }
 
     return command_list[command](instruct, mixing_bowls)
@@ -93,36 +88,46 @@ def exec_parser(line, cnt, dirname):
 
         for instruct in instructions:
             command = instruct.split(' ')[0]
-            mixing_bowls = run_instruction(command,
-                instruct, dirname)
+            if command == "Prep":
+                bowl_pile = parse_func(instruct[5:-1])
+                if len(mixing_bowls) > 1:
+                    temp_bowl = {}
+                    for bowl in mixing_bowls:
+                        temp_bowl.update(bowl)
+                    bowl_pile = [temp_bowl]
+                mixing_bowls[0] = bowl_pile[0]
+            else:
+                mixing_bowls = run_instruction(command,
+                    instruct, dirname)
         return True
 
     if cnt > 0:
         return False
 
 
-def parse_func(line):
-    PREPFLAG = False
+def parse_func(func_name):
+
     EXECFLAG = False
     INGFLAG = False
     cnt = 0
 
-    if EXECFLAG and line:
-        line2 = line.strip('\n')
-        EXECFLAG = exec_parser(line2, cnt, dirname)
-        cnt += 1
-    elif INGFLAG and line:
-        EXECFLAG = ing_parser(line2, cnt)
-        cnt += 1
-        if EXECFLAG:
-            INGFLAG = False
-            cnt = 0
-    elif PREPFLAG and line:
-        INGFLAG = prep_parser(line2)
-        if INGFLAG:
-            PREPFLAG = False
-    elif line:
-        PREPFLAG = file_parser(line2)
+    mixing_bowls = [] 
+
+    for line in func_hash[func_name].split('\n'): 
+        if mixing_bowls and line:
+            mixing_bowls = exec_parser(line, cnt, dirname, mixing_bowls)
+            cnt += 1
+        elif INGFLAG and line:
+            mixing_bowl = ing_parser(line, cnt)
+            cnt += 1
+            if mixing_bowl:
+                mixing_bowls.append(mixing_bowl)
+                INGFLAG = False
+                cnt = 0
+        elif line:
+            INGFLAG = prep_parser(line)
+
+    return mixing_bowls
 
 
 def main(filename=None):
@@ -139,19 +144,19 @@ def main(filename=None):
     with open(filename, 'r') as f:
         for line in f:
             line2 = line.strip('\n')
-
-            if prep_title and line2:
+            if prep_title and line:
                 faux_title = file_parser(line2)
                 if not faux_title:
-                    masternode[prep_title] += line2
+                    func_hash[len(func_hash)-1][prep_title] += line
                 elif faux_title:
                     prep_title = faux_title
+                    func_hash[len(func_hash)] = {prep_title: ""}
 
-            if line2:
+            if line:
                 prep_title = file_parser(line2)
                 if prep_title:
-                    masternode[prep_title = "" 
+                    func_hash[len(func_hash)] = {prep_title: ""}
 
-    return mixing_bowls
+    return prep_func([*func_hash[0][0]])
 
 main()

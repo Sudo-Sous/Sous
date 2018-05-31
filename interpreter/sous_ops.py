@@ -19,7 +19,6 @@
 # SOFTWARE.
 
 import re
-
 import parser
 
 def get_top_elem(mixing_bowls, index):
