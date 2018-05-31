@@ -26,7 +26,8 @@ import sous_ops as ops
 
 
 mixing_bowls = [[]]
-
+recipe_funs = []
+methods = {}
 
 def len_mb(offset=0):
     return len(mixing_bowls)-offset
@@ -40,8 +41,7 @@ def file_parser(line):
     if len(line) > 0:
         if line[len(line)-1] == '.':
             if re.search('(?<=Prep)\.', line):
-                return True
-    return False
+                return line[:-6]
 
 
 def prep_parser(line):
@@ -101,8 +101,14 @@ def exec_parser(line, cnt, dirname):
         return False
 
 
-def parse_fuc(line):
+def parse_func(line):
+    PREPFLAG = False
+    EXECFLAG = False
+    INGFLAG = False
+    cnt = 0
+
     if EXECFLAG and line:
+        line2 = line.strip('\n')
         EXECFLAG = exec_parser(line2, cnt, dirname)
         cnt += 1
     elif INGFLAG and line:
@@ -111,17 +117,15 @@ def parse_fuc(line):
         if EXECFLAG:
             INGFLAG = False
             cnt = 0
-        elif PREPFLAG and line:
-            INGFLAG = prep_parser(line2)
-            if INGFLAG:
-                PREPFLAG = False
-        elif line:
-            PREPFLAG = file_parser(line2)
+    elif PREPFLAG and line:
+        INGFLAG = prep_parser(line2)
+        if INGFLAG:
+            PREPFLAG = False
+    elif line:
+        PREPFLAG = file_parser(line2)
 
 
 def main(filename=None):
-    import os
-
     if not filename:
         parser = argparse.ArgumentParser()
         parser.add_argument("filename")
@@ -131,14 +135,22 @@ def main(filename=None):
     # Splitting results in removal of delim. Have to rebuild
     dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]]) 
 
-    PREPFLAG = False
-    EXECFLAG = False
-    INGFLAG = False
-    cnt = 0
-
+    prep_title = ''
     with open(filename, 'r') as f:
         for line in f:
             line2 = line.strip('\n')
+
+            if prep_title and line2:
+                faux_title = file_parser(line2)
+                if not faux_title:
+                    masternode[prep_title] += line2
+                elif faux_title:
+                    prep_title = faux_title
+
+            if line2:
+                prep_title = file_parser(line2)
+                if prep_title:
+                    masternode[prep_title = "" 
 
     return mixing_bowls
 
