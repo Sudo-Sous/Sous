@@ -65,7 +65,7 @@ def ing_parser(line, cnt):
 
 def run_instruction(command, instruct, dirname):
     if command == "Fetch":
-        return ops.fetch
+        func_hash.update(ops.fetch(instruct, dirname))
 
     command_list = {
         "Add": ops.add,
@@ -130,12 +130,14 @@ def parse_func(func_name):
     return mixing_bowls
 
 
-def main(filename=None):
-    if not filename:
+def main(filename_fetch=None):
+    if not filename_fetch:
         parser = argparse.ArgumentParser()
         parser.add_argument("filename")
         args = parser.parse_args()
         filename = args.filename
+    else:
+        filename = filename_fetch
 
     # Splitting results in removal of delim. Have to rebuild
     dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]]) 
@@ -157,6 +159,9 @@ def main(filename=None):
                 if prep_title:
                     func_hash[len(func_hash)] = {prep_title: ""}
 
-    return prep_func([*func_hash[0][0]])
+    if not filename_fetch:
+        return prep_func([*func_hash[0][0]])
+    else:
+        return func_hash
 
 main()

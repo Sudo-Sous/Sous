@@ -99,11 +99,12 @@ def prnt_ing():
 def prnt_bowl():
     pass
 
-def fetch(instruct, mixing_bowls, dirname):
+def fetch(instruct, dirname):
     import os
     root = None
     name = None
-    ret_dir = None 
+    ret_dir = None
+    func_hash = None
 
     if os.getcwd() != dirname:
        ret_dir = os.getcwd()
@@ -123,10 +124,10 @@ def fetch(instruct, mixing_bowls, dirname):
         for root, dirs, files in os.walk(root):
             for filename in files:
                 if filename.split('/')[-1] == name:
-                    bowls = parser.main(filename)
-                    for bowl in bowls:
-                        mixing_bowls.append(bowl)
+                    func_hash = parser.main(filename)
     # TODO: else throw error
 
     if ret_dir:
         os.chdir(ret_dir)
+
+    return func_hash
