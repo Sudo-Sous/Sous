@@ -98,4 +98,7 @@ def prnt_ing():
 
 
 def prnt_bowl():
-    pass
+    result = re.match('Taste ([0-9]) scoops of the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+
+    
