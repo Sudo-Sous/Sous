@@ -62,49 +62,49 @@ def fetch(instruct, dirname):
     root = None
     name = None
     ret_dir = None
-    func_hash = None
+    func_ret = None
 
     if os.getcwd() != dirname:
        ret_dir = os.getcwd()
        os.chdir(dirname)
 
-    import pdb; pdb.set_trace()
-    if re.match('Fetch the ([^.=*&1-9A-Z]+)', instruct+"."):
-        root = '.'
-        name = re.match('Fetch the ([^.=*&1-9A-Z])+', instruct).group(0).strip('Fetch the')
-    elif re.match('Fetch the  ([a-z]+) from the counter', instruct):
+    if re.search('from the counter', instruct):
         root = '..'
-        name = re.match('Fetch the ([a-z]+) from the counter', instruct).group(1)
-    elif re.match('Fetch the ([a-z]+) from the pantry', instruct):
-        root = './pantry'
-        name = re.match('Fetch the ([a-z]+) from the pantry', instruct).group(1)
+        name = instruct[10:-17]+".sf"
+        name = name.replace(' ', '_')
+    elif re.search('from the pantry', instruct):
+        root = './pantry'                                           
+        name = instruct[10:-12]+".sf"
+    elif re.match('Fetch the ([^.=*&1-9A-Z]+)', instruct):
+        root = '.'
+        name = instruct[10:]+".sf"
 
     if root and name:
         for root, dirs, files in os.walk(root):
             for filename in files:
                 if filename.split('/')[-1] == name:
-                    func_hash = main(filename)
+                    func_ret = driver(filename)
     # TODO: else throw error
 
     if ret_dir:
         os.chdir(ret_dir)
 
-    return func_hash
+    return func_ret
 
 
-def run_instruction(command, instruct, dirname):
+def run_instruction(command, instruct, dirname, mixing_bowls):
     if command == "Fetch":
-        func_hash.append(fetch(instruct, dirname))
+        func_hash = fetch(instruct, dirname)
+    else:
+        command_list = {
+            "Add": ops.add,
+            "Remove": ops.sub,
+            "Combine": ops.multi,
+            "Divide": ops.div,
+            "Taste": ops.prnt,
+        }
 
-    command_list = {
-        "Add": ops.add,
-        "Remove": ops.sub,
-        "Combine": ops.multi,
-        "Divide": ops.div,
-        "Taste": ops.prnt,
-    }
-
-    return command_list[command](instruct, mixing_bowls)
+        return command_list[command](instruct, mixing_bowls)
 
 
 def exec_parser(line, dirname, mixing_bowls):
@@ -118,16 +118,18 @@ def exec_parser(line, dirname, mixing_bowls):
         for instruct in instructions:
             command = instruct.split(' ')[0]
             if command == "Prep":
-                bowl_pile = parse_func(instruct[5:-1])
+                bowl_pile = parse_func(instruct[5:], dirname)
                 if len(mixing_bowls) > 1:
                     temp_bowl = {}
                     for bowl in mixing_bowls:
                         temp_bowl.update(bowl)
                     bowl_pile = [temp_bowl]
-                mixing_bowls[0] = bowl_pile[0]
+                mixing_bowls[0].append(bowl_pile[0][0])
             else:
-                mixing_bowls = run_instruction(command,
-                    instruct, dirname)
+                ret_val = run_instruction(command,
+                    instruct, dirname, mixing_bowls)
+                if ret_val:
+                    mixing_bowls = ret_val
         return mixing_bowls    
     return mixing_bowls
 
@@ -135,33 +137,34 @@ def exec_parser(line, dirname, mixing_bowls):
 def parse_func(func_name, dirname):
     INGFLAG = False
 
+    func_line = ""
     mixing_bowls = [[]]
     for x in range(0, len(func_hash)):
         if [*func_hash[x]][0] == func_name:
             func_line = func_hash[x][func_name]
-
-    cnt = 0
-    for line in func_line.split('\n'):
-        if INGFLAG and line:
-            ing = ing_parser(line)
-            if ing:
-                mixing_bowls[0].append(ing)
-            else:
-                INGFLAG = False
-        elif cnt == 2:
-            mixing_bowls = exec_parser(line, dirname, mixing_bowls)
-            if not mixing_bowls:
-                return mixing_bowls
-        elif not INGFLAG and cnt <= 1 and line:
-            INGFLAG = prep_parser(line)
-        else:
-            if cnt == 1:
-                INGFLAG = False
-            cnt += 1
+            if func_line:
+                cnt = 0
+                for line in func_line.split('\n'):
+                    if INGFLAG and line:
+                        ing = ing_parser(line)
+                        if ing:
+                            mixing_bowls[0].append(ing)
+                        else:
+                            INGFLAG = False
+                    elif cnt == 2:
+                        mix = exec_parser(line, dirname, mixing_bowls)
+                        if mix:
+                            mixing_bowls = mix
+                    elif not INGFLAG and cnt <= 1 and line:
+                        INGFLAG = prep_parser(line)
+                    else:
+                        if cnt == 1:
+                            INGFLAG = False
+                        cnt += 1
     return mixing_bowls
 
 
-def main(filename_fetch=None):
+def driver(filename_fetch=None):
     if not filename_fetch:
         parser = argparse.ArgumentParser()
         parser.add_argument("filename")
@@ -200,5 +203,4 @@ def main(filename_fetch=None):
     else:
         return func_hash
 
-if __name__ == '__main__':
-    main()
+driver()

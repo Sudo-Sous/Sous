@@ -22,8 +22,8 @@ import re
 
 
 def get_top_elem(mixing_bowls, index):
-    bowl = mixing_bowls[len(mixing_bowls)-1]
-    return [*bowl[len(mixing_bowls)-1]][0]
+    bowl = mixing_bowls[index]
+    return [*bowl[len(bowl)-1]][0]
 
 
 def get_ing_val(mixing_bowls, token):
@@ -47,7 +47,7 @@ def add(instruct, mixing_bowls):
     key, val = op_setup(mixing_bowls, index, ing)
 
     # Strings support addition
-    mixing_bowls[index][len(mixing_bowls)][key] += val
+    mixing_bowls[index][len(mixing_bowls[index])-1][key] += val
     return mixing_bowls
 
 
