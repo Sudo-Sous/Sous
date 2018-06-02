@@ -124,6 +124,7 @@ def exec_parser(line, dirname, mixing_bowls):
                     for bowl in mixing_bowls:
                         temp_bowl.update(bowl)
                     bowl_pile = [temp_bowl]
+                # This is temp only until add bowls is impl
                 mixing_bowls[0].append(bowl_pile[0][0])
             else:
                 ret_val = run_instruction(command,
