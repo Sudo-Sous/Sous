@@ -25,7 +25,6 @@ import var_gen as gen
 import sous_ops as ops
 
 
-mixing_bowls = [[]]
 recipe_funs = []
 func_hash = []
 
@@ -46,26 +45,56 @@ def prep_parser(line):
     return False
 
 
-def ing_parser(line, cnt):
-    mixing_bowl = []
+def ing_parser(line):
     if len(line) > 0:
         tokens = line.split(' ')
         if len(tokens) == 1:
-            mixing_bowl.append(gen.one_token(tokens))
+            return gen.one_token(tokens)
         elif len(tokens) == 2:
-            mixing_bowl.append(gen.two_token(tokens))
+            return gen.two_token(tokens)
         elif len(tokens) == 3:
-            mixing_bowl.append(gen.three_token(tokens))
+            return gen.three_token(tokens)
         else:
-            mixing_bowl.append(gen.multi_token(tokens))
+            return gen.multi_token(tokens)
 
-    if cnt > 0:
-        return mixing_bowl
+def fetch(instruct, dirname):
+    import os
+    root = None
+    name = None
+    ret_dir = None
+    func_hash = None
+
+    if os.getcwd() != dirname:
+       ret_dir = os.getcwd()
+       os.chdir(dirname)
+
+    import pdb; pdb.set_trace()
+    if re.match('Fetch the ([^.=*&1-9A-Z]+)', instruct+"."):
+        root = '.'
+        name = re.match('Fetch the ([^.=*&1-9A-Z])+', instruct).group(0).strip('Fetch the')
+    elif re.match('Fetch the  ([a-z]+) from the counter', instruct):
+        root = '..'
+        name = re.match('Fetch the ([a-z]+) from the counter', instruct).group(1)
+    elif re.match('Fetch the ([a-z]+) from the pantry', instruct):
+        root = './pantry'
+        name = re.match('Fetch the ([a-z]+) from the pantry', instruct).group(1)
+
+    if root and name:
+        for root, dirs, files in os.walk(root):
+            for filename in files:
+                if filename.split('/')[-1] == name:
+                    func_hash = main(filename)
+    # TODO: else throw error
+
+    if ret_dir:
+        os.chdir(ret_dir)
+
+    return func_hash
 
 
 def run_instruction(command, instruct, dirname):
     if command == "Fetch":
-        func_hash.update(ops.fetch(instruct, dirname))
+        func_hash.append(fetch(instruct, dirname))
 
     command_list = {
         "Add": ops.add,
@@ -78,7 +107,7 @@ def run_instruction(command, instruct, dirname):
     return command_list[command](instruct, mixing_bowls)
 
 
-def exec_parser(line, cnt, dirname):
+def exec_parser(line, dirname, mixing_bowls):
     if len(line) > 0:
         sanitized_line = line.replace('. ', '.')
         instructions = sanitized_line.split('.')
@@ -99,34 +128,36 @@ def exec_parser(line, cnt, dirname):
             else:
                 mixing_bowls = run_instruction(command,
                     instruct, dirname)
-        return True
-
-    if cnt > 0:
-        return False
+        return mixing_bowls    
+    return mixing_bowls
 
 
-def parse_func(func_name):
-
-    EXECFLAG = False
+def parse_func(func_name, dirname):
     INGFLAG = False
+
+    mixing_bowls = [[]]
+    for x in range(0, len(func_hash)):
+        if [*func_hash[x]][0] == func_name:
+            func_line = func_hash[x][func_name]
+
     cnt = 0
-
-    mixing_bowls = [] 
-
-    for line in func_hash[func_name].split('\n'): 
-        if mixing_bowls and line:
-            mixing_bowls = exec_parser(line, cnt, dirname, mixing_bowls)
-            cnt += 1
-        elif INGFLAG and line:
-            mixing_bowl = ing_parser(line, cnt)
-            cnt += 1
-            if mixing_bowl:
-                mixing_bowls.append(mixing_bowl)
+    for line in func_line.split('\n'):
+        if INGFLAG and line:
+            ing = ing_parser(line)
+            if ing:
+                mixing_bowls[0].append(ing)
+            else:
                 INGFLAG = False
-                cnt = 0
-        elif line:
+        elif cnt == 2:
+            mixing_bowls = exec_parser(line, dirname, mixing_bowls)
+            if not mixing_bowls:
+                return mixing_bowls
+        elif not INGFLAG and cnt <= 1 and line:
             INGFLAG = prep_parser(line)
-
+        else:
+            if cnt == 1:
+                INGFLAG = False
+            cnt += 1
     return mixing_bowls
 
 
@@ -152,16 +183,22 @@ def main(filename_fetch=None):
                     func_hash[len(func_hash)-1][prep_title] += line
                 elif faux_title:
                     prep_title = faux_title
-                    func_hash[len(func_hash)] = {prep_title: ""}
+                    func_hash.append({prep_title: ""})
 
-            if line:
+            elif line:
                 prep_title = file_parser(line2)
                 if prep_title:
-                    func_hash[len(func_hash)] = {prep_title: ""}
+                    func_hash.append({prep_title: ""})
 
     if not filename_fetch:
-        return prep_func([*func_hash[0][0]])
+        mixing_bowls = parse_func([*func_hash[0]][0], dirname)
+        ret_bowls = []
+        for bowls in mixing_bowls:
+            for ing in bowls:
+                ret_bowls.append(ing)
+        return ret_bowls 
     else:
         return func_hash
 
-main()
+if __name__ == '__main__':
+    main()
