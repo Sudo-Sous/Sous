@@ -100,6 +100,6 @@ def multi_token(tokens):
     elif tokens[2] in EITHEROR:
        del tokens[2]
        if tokens[1] in DRYFLAG:
-           return set_dry_val([tokens[0], gen_var_name(tokens[1:])])
+           return set_dry_val([tokens[0], gen_var_name(tokens[2:])])
        else:
-           return set_liquid_val([tokens[0], gen_var_name(tokens[1:])])
+           return set_liquid_val([tokens[0], gen_var_name(tokens[2:])])
