@@ -54,7 +54,7 @@ def ing_parser(line):
             return gen.multi_token(tokens)
 
 
-def prep(instruct, dirname):
+def prep(instruct, dirname, mixing_bowls):
     """Run instructions within the prep"""
 
     bowl_pile = parse_prep(instruct, dirname)
@@ -64,6 +64,7 @@ def prep(instruct, dirname):
             temp_bowl.update(bowl)
         bowl_pile = [temp_bowl]
     # This is temp only until add bowls is impl
+
     return mixing_bowls[0].append(bowl_pile[0][0])
 
 
@@ -73,9 +74,10 @@ def run_instruction(command, instruct, dirname, mixing_bowls):
     return -- a mixing bowl with new args or None
     """
     if command == "Fetch":
-        prep_list.append(ops.fetch(instruct, dirname))
+        for x in ops.fetch(instruct, dirname):
+            prep_list.append(x)
     elif command == "Prep":
-        return prep(instruct[5:], dirname)
+        return prep(instruct[5:], dirname, mixing_bowls)
     else:
         command_list = {
             "Add": ops.add,
@@ -183,6 +185,7 @@ def driver(filename_fetch=None):
     # Splitting results in removal of delim. Have to rebuild
     dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]])
 
+    global prep_list
     prep_list = loader.load_file(filename, dirname)
 
     if not filename_fetch:

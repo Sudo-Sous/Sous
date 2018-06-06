@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 import re
+import loader
 
 
 def get_top_elem(mixing_bowls, index):
@@ -143,7 +144,8 @@ def fetch(instruct, dirname="."):
         for root, dirs, files in os.walk(root):
             for filename in files:
                 if filename.split('/')[-1] == name:
-                    prep_list = loader.load_file(filename)
+                    dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]])
+                    prep_list = loader.load_file(filename, dirname)
     # TODO: else throw error
 
     # Return to the directory of the parser
