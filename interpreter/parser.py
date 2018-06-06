@@ -21,10 +21,11 @@
 import argparse
 import re
 
+import loader
 import var_gen as gen
 import sous_ops as ops
 
-func_hash = []
+prep_list = []
 
 
 def check_prep(line):
@@ -64,66 +65,28 @@ def ing_parser(line):
             return gen.multi_token(tokens)
 
 
-def fetch(instruct, dirname="."):
-    """Imports preps from other files.
+def prep(instruct, dirname):
+    """Run instructions within the prep"""
 
-    The parser is being run from a directory different
-    than the actual code it is interpreting. Therefore,
-    it must step into directory of the file being parsed,
-    and from there using relative paths to find the file
-    which is desired to be imported.
-
-    No return value is needed as the global func_hash
-    variable is directly modified by the driver function.
-    """
-
-    import os
-    root = None
-    name = None
-    ret_dir = None
-    func_ret = None
-
-    if os.getcwd() != dirname:
-       ret_dir = os.getcwd()
-       os.chdir(dirname)
-
-    if re.search('from the counter', instruct):
-        root = '..'
-        name = instruct[10:-17]+".sf"
-        name = name.replace(' ', '_')
-    elif re.search('from the pantry', instruct):
-        root = './pantry'                                           
-        name = instruct[10:-12]+".sf"
-        name = name.replace(' ', '_')
-    elif re.match('Fetch the ([^.=*&1-9A-Z]+)', instruct):
-        root = '.'
-        name = instruct[10:]+".sf"
-        name = name.replace(' ', '_')
-
-    if root and name:
-        for root, dirs, files in os.walk(root):
-            for filename in files:
-                if filename.split('/')[-1] == name:
-                    driver(filename)
-    # TODO: else throw error
-
-    # Return to the directory of the parser
-    if ret_dir:
-        os.chdir(ret_dir)
+    bowl_pile = parse_prep(instruct, dirname)
+    if len(mixing_bowls) > 1:
+        temp_bowl = {}
+        for bowl in mixing_bowls:
+            temp_bowl.update(bowl)
+        bowl_pile = [temp_bowl]
+    # This is temp only until add bowls is impl
+    return mixing_bowls[0].append(bowl_pile[0][0])
 
 
 def run_instruction(command, instruct, dirname, mixing_bowls):
+    """Gets instruction arguments where they need to go
+
+    return -- a mixing bowl with new args or None
+    """
     if command == "Fetch":
-        fetch(instruct, dirname)
+        prep_list.append(ops.fetch(instruct, dirname))
     elif command == "Prep":
-        bowl_pile = parse_func(instruct[5:], dirname)
-        if len(mixing_bowls) > 1:
-            temp_bowl = {}
-            for bowl in mixing_bowls:
-                temp_bowl.update(bowl)
-            bowl_pile = [temp_bowl]
-        # This is temp only until add bowls is impl
-        return mixing_bowls[0].append(bowl_pile[0][0])
+        return prep(instruct[5:], dirname)
     else:
         command_list = {
             "Add": ops.add,
@@ -137,6 +100,14 @@ def run_instruction(command, instruct, dirname, mixing_bowls):
 
 
 def exec_parser(line, dirname, mixing_bowls):
+    """Iterate over the prep instructions
+
+    From there, send them off to the run_instruction func
+    to be executed. If run_instruction returns anything,
+    it is an updated mixing_bowl and therefore should replace
+    the old one.
+    """
+
     if len(line) > 0:
         sanitized_line = line.replace('. ', '.')
         instructions = sanitized_line.split('.')
@@ -154,41 +125,63 @@ def exec_parser(line, dirname, mixing_bowls):
     return mixing_bowls
 
 
-def parse_func(func_name, dirname):
-    INGFLAG = False
+def parse_prep(prep_name, dirname):
+    """Parse the prep
 
-    found = False
-    func_line = ""
+    Loops over the lines within the prep
+    and either adds the to the mixing bowl (ingredients)
+    or executes them (instructions)
+
+    return -- mixing_bowls double array w/ internal dicts
+    """
+    INGFLAG = False
     mixing_bowls = [[]]
-    for x in range(0, len(func_hash)):
-        if [*func_hash[x]][0] == func_name:
-            func_line = func_hash[x][func_name]
-            if func_line:
-                found = True
-                cnt = 0
-                for line in func_line.split('\n'):
-                    if INGFLAG and line:
-                        ing = ing_parser(line)
-                        if ing:
-                            mixing_bowls[0].append(ing)
-                        else:
-                            INGFLAG = False
-                    elif cnt == 2:
-                        mix = exec_parser(line, dirname, mixing_bowls)
-                        if mix:
-                            mixing_bowls = mix
-                    elif not INGFLAG and cnt <= 1 and line:
-                        INGFLAG = check_ing(line)
-                    else:
-                        if cnt == 1:
-                            INGFLAG = False
-                        cnt += 1
-    # if not found:
+
+    # Search through the prep_hash and find the
+    # proper prep contents.
+    for x in range(0, len(prep_hash)):
+        if [*prep_hash[x]][0] == prep_name:
+            prep_lines = prep_hash[x][prep_name]
+
+    if prep_lines:
+        # cnt keeps track of the number of new lines
+        # between the ingredient list and instructions.
+        cnt = 0
+
+        for line in prep_lines.split('\n'):
+            if INGFLAG and line:
+                ing = ing_parser(line)
+                if ing:
+                    mixing_bowls[0].append(ing)
+                else:
+                    INGFLAG = False
+            elif cnt == 2:
+                mix = exec_parser(line, dirname, mixing_bowls)
+                if mix:
+                    mixing_bowls = mix
+            elif not INGFLAG and cnt <= 1 and line:
+                INGFLAG = check_ing(line)
+            else:
+                if cnt == 1:
+                    INGFLAG = False
+                cnt += 1
+    # else:
     #     raise MethodNotFoundException()
     return mixing_bowls
 
 
 def driver(filename_fetch=None):
+    """ Main driver function
+
+    Loads all preps within the file into the prep_hash.
+    If filename_fetch is set, then their is nothing more
+    to do. Otherwise, execute the first prep within the file.
+    The first prep is always treated as the "main" function. 
+
+    filename_fetch: absolute filepath or None
+
+    return -- list of ingredients or None 
+    """
     if not filename_fetch:
         parser = argparse.ArgumentParser()
         parser.add_argument("filename")
@@ -197,32 +190,9 @@ def driver(filename_fetch=None):
     else:
         filename = filename_fetch
 
-    # Splitting results in removal of delim. Have to rebuild
-    dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]]) 
-
-    prep_title = ''
-    with open(filename, 'r') as f:
-        for line in f:
-            line2 = line.strip('\n')
-            if prep_title and line:
-                faux_title = check_prep(line2)
-                if not faux_title:
-                    func_hash[len(func_hash)-1][prep_title] += line
-                elif faux_title:
-                    prep_title = faux_title
-                    func_hash.append({prep_title: ""})
-
-            elif line:
-                prep_title = check_prep(line2)
-                if prep_title:
-                    func_hash.append({prep_title: ""})
+    prep_list = loader.load_file(filename)
 
     if not filename_fetch:
-        mixing_bowls = parse_func([*func_hash[0]][0], dirname)
-        ret_bowls = []
-        for bowls in mixing_bowls:
-            for ing in bowls:
-                ret_bowls.append(ing)
-        return ret_bowls 
+        parse_prep([*prep_hash[0]][0], dirname)
 
 driver()

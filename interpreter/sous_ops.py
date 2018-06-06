@@ -98,7 +98,56 @@ def prnt_ing():
 
 
 def prnt_bowl():
-    result = re.match('Taste ([0-9]) scoops of the ([0-9])(th|st|nd|rd) mixing bowl',
-                      instruct)
+   # result = re.match('Taste ([0-9]) scoops of the ([0-9])(th|st|nd|rd) mixing bowl',
+   #                   instruct)
 
-    
+
+def fetch(instruct, dirname="."):
+    """Imports preps from other files.
+
+    The parser is being run from a directory different
+    than the actual code it is interpreting. Therefore,
+    it must step into directory of the file being parsed,
+    and from there using relative paths to find the file
+    which is desired to be imported.
+
+    No return value is needed as the global prep_hash
+    variable is directly modified by the driver function.
+    """
+
+    import os
+    root = None
+    name = None
+    ret_dir = None
+
+    prep_list = []
+
+    if os.getcwd() != dirname:
+       ret_dir = os.getcwd()
+       os.chdir(dirname)
+
+    if re.search('from the counter', instruct):
+        root = '..'
+        name = instruct[10:-17]+".sf"
+        name = name.replace(' ', '_')
+    elif re.search('from the pantry', instruct):
+        root = './pantry'
+        name = instruct[10:-12]+".sf"
+        name = name.replace(' ', '_')
+    elif re.match('Fetch the ([^.=*&1-9A-Z]+)', instruct):
+        root = '.'
+        name = instruct[10:]+".sf"
+        name = name.replace(' ', '_')
+
+    if root and name:
+        for root, dirs, files in os.walk(root):
+            for filename in files:
+                if filename.split('/')[-1] == name:
+                    prep_list = loader.load_file(filename)
+    # TODO: else throw error
+
+    # Return to the directory of the parser
+    if ret_dir:
+        os.chdir(ret_dir)
+
+    return prep_list
