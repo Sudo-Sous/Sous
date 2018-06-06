@@ -18,10 +18,22 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-def load_file(filename):
-    # Splitting results in removal of delim. Have to rebuild
-    dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]])
 
+import re
+
+
+def check_prep(line):
+    """Checks if prep block has been reached.
+
+    return --- Prep title or None
+    """
+    if len(line) > 0:
+        if line[len(line)-1] == '.':
+            if re.search('(?<=Prep)\.', line):
+                return line[:-6]
+
+
+def load_file(filename, dirname):
     prep_list = []
     prep_title = ''
     with open(filename, 'r') as f:
@@ -30,14 +42,14 @@ def load_file(filename):
             if prep_title and line:
                 faux_title = check_prep(line2)
                 if not faux_title:
-                    prep_hash[len(prep_hash)-1][prep_title] += line
+                    prep_list[len(prep_list)-1][prep_title] += line
                 elif faux_title:
                     prep_title = faux_title
-                    prep_hash.append({prep_title: ""})
+                    prep_list.append({prep_title: ""})
 
             elif line:
                 prep_title = check_prep(line2)
                 if prep_title:
-                    prep_hash.append({prep_title: ""})
+                    prep_list.append({prep_title: ""})
 
     return prep_list

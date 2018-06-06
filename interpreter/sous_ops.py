@@ -100,7 +100,7 @@ def prnt_ing():
 def prnt_bowl():
    # result = re.match('Taste ([0-9]) scoops of the ([0-9])(th|st|nd|rd) mixing bowl',
    #                   instruct)
-
+   pass
 
 def fetch(instruct, dirname="."):
     """Imports preps from other files.

@@ -28,17 +28,6 @@ import sous_ops as ops
 prep_list = []
 
 
-def check_prep(line):
-    """Checks if prep block has been reached.
-
-    return --- Prep title or None
-    """
-    if len(line) > 0:
-        if line[len(line)-1] == '.':
-            if re.search('(?<=Prep)\.', line):
-                return line[:-6]
-
-
 def check_ing(line):
     """Checks if ingredient block has been reached."""
 
@@ -136,12 +125,13 @@ def parse_prep(prep_name, dirname):
     """
     INGFLAG = False
     mixing_bowls = [[]]
+    prep_lines = ""
 
-    # Search through the prep_hash and find the
+    # Search through the prep_list and find the
     # proper prep contents.
-    for x in range(0, len(prep_hash)):
-        if [*prep_hash[x]][0] == prep_name:
-            prep_lines = prep_hash[x][prep_name]
+    for x in range(0, len(prep_list)):
+        if [*prep_list[x]][0] == prep_name:
+            prep_lines = prep_list[x][prep_name]
 
     if prep_lines:
         # cnt keeps track of the number of new lines
@@ -173,7 +163,7 @@ def parse_prep(prep_name, dirname):
 def driver(filename_fetch=None):
     """ Main driver function
 
-    Loads all preps within the file into the prep_hash.
+    Loads all preps within the file into the prep_list.
     If filename_fetch is set, then their is nothing more
     to do. Otherwise, execute the first prep within the file.
     The first prep is always treated as the "main" function. 
@@ -190,9 +180,12 @@ def driver(filename_fetch=None):
     else:
         filename = filename_fetch
 
-    prep_list = loader.load_file(filename)
+    # Splitting results in removal of delim. Have to rebuild
+    dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]])
+
+    prep_list = loader.load_file(filename, dirname)
 
     if not filename_fetch:
-        parse_prep([*prep_hash[0]][0], dirname)
+        parse_prep([*prep_list[0]][0], dirname)
 
 driver()
