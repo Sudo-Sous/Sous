@@ -78,7 +78,6 @@ def run_instruction(command, instruct, dirname, mixing_bowls):
         for x in ops.fetch(instruct, dirname):
             prep_list.append(x)
     elif command == "Prep":
-        import pdb; pdb.set_trace()
         return prep(instruct[5:], dirname, mixing_bowls)
     else:
         command_list = {
