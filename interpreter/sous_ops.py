@@ -28,8 +28,8 @@ def get_top_elem(mixing_bowls, index):
 
 
 def get_ing_val(mixing_bowls, token):
-    for bowl in mixing_bowls:
-        for ing in bowl:
+    for x in range(1, len(mixing_bowls)):
+        for ing in mixing_bowls[x]:
             if ing.get(token):
                 return ing[token]
 
@@ -40,9 +40,9 @@ def op_setup(mixing_bowls, index, ing):
 
 
 def add(instruct, mixing_bowls):
-    result = re.match('Add ([a-z]+) to the ([0-9])(th|st|nd|rd) mixing bowl',
+    result = re.match('Add ([a-z]+) to the ([1-9])(th|st|nd|rd) mixing bowl',
                       instruct)
-    index = int(result.group(2)) - 1
+    index = int(result.group(2))
     ing = result.group(1)
 
     key, val = op_setup(mixing_bowls, index, ing)
@@ -53,36 +53,36 @@ def add(instruct, mixing_bowls):
 
 
 def sub(instruct, mixing_bowls):
-    result = re.match('Remove ([a-z]+) from the ([0-9])(th|st|nd|rd) mixing bowl',
+    result = re.match('Remove ([a-z]+) from the ([1-9])(th|st|nd|rd) mixing bowl',
                       instruct)
-    index = int(result.group(2)) - 1
+    index = int(result.group(2))
     ing = result.group(1)
 
     key, val = op_setup(mixing_bowls, index, ing)
-    mixing_bowls[index][key] -= int(val)
+    mixing_bowls[index][len(mixing_bowls[index])-1][key] -= int(val)
     return mixing_bowls
 
 
 def multi(instruct, mixing_bowls):
-    result = re.match('Combine ([a-z]+) into the ([0-9])(th|st|nd|rd) mixing bowl',
+    result = re.match('Combine ([a-z]+) into the ([1-9])(th|st|nd|rd) mixing bowl',
                       instruct)
-    index = int(result.group(2)) - 1
+    index = int(result.group(2))
     ing = result.group(1)
 
     # Stings support multiplcation 
     key, val = op_setup(mixing_bowls, index, ing)
-    mixing_bowls[index][key] *= val
+    mixing_bowls[index][len(mixing_bowls[index])-1][key] *= val
     return mixing_bowls
 
 
 def div(instruct, mixing_bowls):
-    result = re.match('Divide ([a-z]+) into the ([0-9])(th|st|nd|rd) mixing bowl',
-                      instruct)                                     
-    index = int(result.group(2)) - 1
+    result = re.match('Divide ([a-z]+) into the ([1-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+    index = int(result.group(2))
     ing = result.group(1)
 
     key, val = op_setup(mixing_bowls, index, ing)
-    mixing_bowls[index][key] /= int(val)
+    mixing_bowls[index][len(mixing_bowls[index])-1][key] /= int(val)
     return mixing_bowls
 
 
@@ -102,6 +102,29 @@ def prnt_bowl():
    # result = re.match('Taste ([0-9]) scoops of the ([0-9])(th|st|nd|rd) mixing bowl',
    #                   instruct)
    pass
+
+
+def ing_push(instruct, mixing_bowls):
+    result = re.match('Put ([a-z]+) into the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+    index = int(result.group(2))
+    ing = result.group(1)
+
+    val = get_ing_val(mixing_bowls, ing)
+    mixing_bowls[index].append({ing: val})
+    return mixing_bowls
+
+
+def ing_pop(instruct, mixing_bowls):
+    result = re.match('Skim the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+    index = int(result.group(1))
+
+    key = get_top_elem(mixing_bowls, index)
+
+    mixing_bowls["skimings"] = mixing_bowls[index][len(mixing_bowls[index])-1][key]
+    return mixing_bowls
+
 
 def fetch(instruct, dirname="."):
     """Imports preps from other files.

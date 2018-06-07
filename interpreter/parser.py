@@ -58,14 +58,15 @@ def prep(instruct, dirname, mixing_bowls):
     """Run instructions within the prep"""
 
     bowl_pile = parse_prep(instruct, dirname)
-    if len(mixing_bowls) > 1:
+    temp_bowl ={}
+    if len(bowl_pile) > 1:
         temp_bowl = {}
-        for bowl in mixing_bowls:
-            temp_bowl.update(bowl)
-        bowl_pile = [temp_bowl]
-    # This is temp only until add bowls is impl
-
-    return mixing_bowls[0].append(bowl_pile[0][0])
+        for x in range(1, len(bowl_pile)):
+            for ing in bowl_pile[x]:
+                temp_bowl.update(ing)
+        # This is temp only until add bowls is impl
+        return mixing_bowls[1].append(temp_bowl)
+    return mixing_bowls
 
 
 def run_instruction(command, instruct, dirname, mixing_bowls):
@@ -77,6 +78,7 @@ def run_instruction(command, instruct, dirname, mixing_bowls):
         for x in ops.fetch(instruct, dirname):
             prep_list.append(x)
     elif command == "Prep":
+        import pdb; pdb.set_trace()
         return prep(instruct[5:], dirname, mixing_bowls)
     else:
         command_list = {
@@ -126,7 +128,7 @@ def parse_prep(prep_name, dirname):
     return -- mixing_bowls double array w/ internal dicts
     """
     INGFLAG = False
-    mixing_bowls = [[]]
+    mixing_bowls = [{"skimings": None}, []]
     prep_lines = ""
 
     # Search through the prep_list and find the
@@ -144,7 +146,7 @@ def parse_prep(prep_name, dirname):
             if INGFLAG and line:
                 ing = ing_parser(line)
                 if ing:
-                    mixing_bowls[0].append(ing)
+                    mixing_bowls[1].append(ing)
                 else:
                     INGFLAG = False
             elif cnt == 2:
