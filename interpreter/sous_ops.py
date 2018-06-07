@@ -27,6 +27,11 @@ def get_top_elem(mixing_bowls, index):
     return [*bowl[len(bowl)-1]][0]
 
 
+def get_elem(mixing_bowls, index_bowl, index):
+    bowl = mixing_bowls[index_bowl]
+    return [*bowl[index]][0]
+
+
 def get_ing_val(mixing_bowls, token):
     for x in range(1, len(mixing_bowls)):
         for ing in mixing_bowls[x]:
@@ -86,24 +91,6 @@ def div(instruct, mixing_bowls):
     return mixing_bowls
 
 
-def prnt(instruct, mixing_bowls):
-    result = re.match('Taste the ([a-z]+)',
-                      instruct)
-    ing = result.group(1)
-
-    print(get_ing_val(mixing_bowls, ing))
-
-
-def prnt_ing():
-    pass
-
-
-def prnt_bowl():
-   # result = re.match('Taste ([0-9]) scoops of the ([0-9])(th|st|nd|rd) mixing bowl',
-   #                   instruct)
-   pass
-
-
 def ing_push(instruct, mixing_bowls):
     result = re.match('Put ([a-z]+) into the ([0-9])(th|st|nd|rd) mixing bowl',
                       instruct)
@@ -124,6 +111,34 @@ def ing_pop(instruct, mixing_bowls):
 
     mixing_bowls["skimings"] = mixing_bowls[index][len(mixing_bowls[index])-1][key]
     return mixing_bowls
+
+
+def assign(instruct, mixing_bowls):
+    result = re.match('Fold the ([a-z]+) into the ([1-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+    index = int(result.group(2))
+    ing = result.group(1)
+
+    key = get_top_elem(mixing_bowls, index)
+    mixing_bowls[index][len(mixing_bowls[index])-1][key] == ing
+    return mixing_bowls
+
+
+def prnt(instruct, mixing_bowls):
+    result = re.match('Taste (1 scoop |[2-9] scoops) of the ([0-9])(th|st|nd|rd) mixing bowl',
+                      instruct)
+
+    if result:
+        index_1 = result.group(1)[0]
+        index_2 = result.group(2)
+        print(get_elem(mixing_bowl, index2, index1)
+
+    else:
+        result = re.match('Taste the ([a-z]+)',
+                          instruct)
+        if result:
+            ing = result.group(1)
+            print(get_ing_val(mixing_bowls, ing))
 
 
 def fetch(instruct, dirname="."):

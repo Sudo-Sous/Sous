@@ -86,6 +86,9 @@ def run_instruction(command, instruct, dirname, mixing_bowls):
             "Combine": ops.multi,
             "Divide": ops.div,
             "Taste": ops.prnt,
+            "Fold": ops.assign,
+            "Put": ops.push,
+            "Skim": ops.pop
         }
 
         return command_list[command](instruct, mixing_bowls)
