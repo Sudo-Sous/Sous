@@ -28,11 +28,19 @@ def get_top_elem(mixing_bowls, index):
 
 
 def get_elem(mixing_bowls, index_bowl, index):
+    """Gets the name of the element at the provide indices"""
     bowl = mixing_bowls[index_bowl]
-    return [*bowl[index]][0]
+    return [*bowl[len(bowl)-index]][0]
+
+
+def get_elem_val(mixing_bowls, index_bowl, index):
+    """Gets the value of the element at the provide indices"""
+    bowl = mixing_bowls[index_bowl]
+    return bowl[len(bowl)-index][[*bowl[len(bowl)-index]][0]] 
 
 
 def get_ing_val(mixing_bowls, token):
+    """Gets the value of the element when indices are unkown"""
     for x in range(1, len(mixing_bowls)):
         for ing in mixing_bowls[x]:
             if ing.get(token):
@@ -125,13 +133,13 @@ def assign(instruct, mixing_bowls):
 
 
 def prnt(instruct, mixing_bowls):
-    result = re.match('Taste (1 scoop |[2-9] scoops) of the ([0-9])(th|st|nd|rd) mixing bowl',
+    result = re.match('Taste (1 scoop|[2-9] scoops) of the ([0-9])(th|st|nd|rd) mixing bowl',
                       instruct)
 
     if result:
-        index_1 = result.group(1)[0]
-        index_2 = result.group(2)
-        print(get_elem(mixing_bowl, index2, index1)
+        index1 = int(result.group(1)[0])
+        index2 = int(result.group(2))
+        print(get_elem_val(mixing_bowls, index2, index1))
 
     else:
         result = re.match('Taste the ([a-z]+)',
