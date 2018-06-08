@@ -21,9 +21,9 @@
 import argparse
 import re
 
-import loader
-import var_gen as gen
-import sous_ops as ops
+from interpreter import loader
+from interpreter import var_gen as gen
+from interpreter import sous_ops as ops
 
 prep_list = []
 
@@ -166,7 +166,7 @@ def parse_prep(prep_name, dirname):
     return mixing_bowls
 
 
-def driver(filename_fetch=None):
+def driver(filename, fetch=False):
     """ Main driver function
 
     Loads all preps within the file into the prep_list.
@@ -178,21 +178,10 @@ def driver(filename_fetch=None):
 
     return -- list of ingredients or None 
     """
-    if not filename_fetch:
-        parser = argparse.ArgumentParser()
-        parser.add_argument("filename")
-        args = parser.parse_args()
-        filename = args.filename
-    else:
-        filename = filename_fetch
-
     # Splitting results in removal of delim. Have to rebuild
     dirname = ''.join(['/' + token for token in filename.split('/')[1:-1]])
 
     global prep_list
     prep_list = loader.load_file(filename, dirname)
 
-    if not filename_fetch:
-        parse_prep([*prep_list[0]][0], dirname)
-
-driver()
+    parse_prep([*prep_list[0]][0], dirname)

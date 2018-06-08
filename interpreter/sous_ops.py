@@ -19,7 +19,7 @@
 # SOFTWARE.
 
 import re
-import loader
+from interpreter import loader
 
 
 def get_top_elem(mixing_bowls, index):

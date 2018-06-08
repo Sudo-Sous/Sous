@@ -1,0 +1,16 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+from interpreter.parser import driver
+
+fparser = argparse.ArgumentParser()
+fparser.add_argument("filename")
+args = fparser.parse_args()
+filename = args.filename
+
+if filename[-3:] == ".sf":
+    if "/" in filename:
+        driver(filename)
+    else:
+        driver(os.getcwd() + "/" + filename)
